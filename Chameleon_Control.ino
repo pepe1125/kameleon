@@ -15,6 +15,9 @@ const uint16_t erosites = 3600;
 
 byte time_hour, time_min, old_time_min;
 
+float tempC_old;
+bool disp;
+
 bool uv;
 bool century = false;
 bool h12Flag;
@@ -63,18 +66,22 @@ void loop(void) {
       Serial.print(hour());
       Serial.print(":");
       Serial.print(minute());
-      Serial.print(" ");
+      Serial.println();
     }
     else if ((c == 'i')) {
-      i = 2000;
+      i = 4000;
+      Serial.print(i);
+      Serial.println();
     }
   }
-  
   sensors.requestTemperatures(); // Send the command to get temperatures
   float tempC = sensors.getTempC(insideThermometer);
-  Serial.print(tempC);
-  Serial.print("C ");
-
+  if (tempC != tempC_old) {
+    tempC_old = tempC;
+    disp = true;
+    Serial.print(tempC);
+    Serial.print("C ");
+  }
   uint16_t futes = erosites * (30.0 - tempC);
 
   time_hour = hour();
@@ -82,33 +89,38 @@ void loop(void) {
   if (time_min != old_time_min) {
     setTime(ora.getHour(h12Flag, pmFlag), time_min, ora.getSecond(), ora.getDate(), ora.getMonth(century), ora.getYear());
     old_time_min = time_min;
-    Serial.print(" T ");
+    if (disp) Serial.print(" T ");
   }
 
   if (time_hour >= 7 && time_hour < 8) {
     if (i < 9500) i = i + 3;
-    Serial.print(i);
-    Serial.println();
+    if (disp) {
+      Serial.print(i);
+      Serial.println();
+    }
   }
   else if (time_hour >= 8 && time_hour < 19) {
     i = constrain(futes, 0, 9500);
-    Serial.print(i);
+    if (disp) Serial.print(i);
     if (tempC >= 27.0) {
       bitSet(PORTB, 1);
-      Serial.print(" UV1");
+      if (disp) Serial.print(" UV1");
     }
     else if (tempC <= 26.0)
     {
       bitClear(PORTB, 1);
-      Serial.print(" UV0");
+      if (disp) Serial.print(" UV0");
     }
-    Serial.println();
+    if (disp) Serial.println();
   }
   else {
     if (i > 2) i -= 2;
     bitClear(PORTB, 1);
-    Serial.print(i);
-    Serial.println();
+    if (disp) {
+      Serial.print(i);
+      Serial.println();
+    }
   }
-  
+  disp = false;
+
 }

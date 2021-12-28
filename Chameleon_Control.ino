@@ -82,7 +82,11 @@ void loop(void) {
     Serial.print(tempC);
     Serial.print("C ");
   }
-  uint16_t futes = erosites * (30.0 - tempC);
+
+  uint16_t futes;
+  if (30.0 - tempC >= 0.0)
+    futes = erosites * (30.0 - tempC);
+  else futes = 0;
 
   time_hour = hour();
   time_min = ora.getMinute();

@@ -16,7 +16,7 @@ byte Second;
 bool Century = false;
 bool h12;
 bool PM;
-int interval = 1000;          // interval between sends
+int interval = 1000;          // interval between refresh in millisec
 long lastTime = 0;
 
 volatile uint16_t i = 2000;
